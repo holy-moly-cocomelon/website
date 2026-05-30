@@ -1,0 +1,310 @@
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Special+Elite&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body-wrapper {
+    display: block;
+  }
+
+  #scene {
+    min-height: 520px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    background: #0a0a0a;
+    border-radius: var(--border-radius-lg);
+  }
+
+  .stars {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle linear infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: 1; }
+  }
+
+  #title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    color: #fff;
+    text-align: center;
+    letter-spacing: 4px;
+    margin-bottom: 6px;
+    text-shadow: 0 0 40px rgba(255,220,50,0.4);
+  }
+
+  #subtitle {
+    font-family: 'Special Elite', serif;
+    font-size: 14px;
+    color: #888;
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+  }
+
+  #bigbtn {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    padding: 18px 52px;
+    background: #e8c327;
+    color: #0a0a0a;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.08s, box-shadow 0.08s;
+    box-shadow: 0 6px 0 #8a7310, 0 10px 30px rgba(232,195,39,0.3);
+    z-index: 10;
+  }
+
+  #bigbtn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 9px 0 #8a7310, 0 16px 40px rgba(232,195,39,0.4);
+  }
+
+  #bigbtn:active {
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 #8a7310, 0 4px 10px rgba(232,195,39,0.2);
+  }
+
+  #counter-wrap {
+    margin-top: 28px;
+    text-align: center;
+  }
+
+  #click-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 64px;
+    color: #e8c327;
+    line-height: 1;
+    transition: transform 0.1s;
+  }
+
+  #click-count.pop {
+    transform: scale(1.3);
+  }
+
+  #click-label {
+    font-family: 'Special Elite', serif;
+    font-size: 13px;
+    color: #666;
+    letter-spacing: 2px;
+    margin-top: 4px;
+  }
+
+  #reaction {
+    font-family: 'Special Elite', serif;
+    font-size: 16px;
+    color: #e8c327;
+    min-height: 28px;
+    margin-top: 20px;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    max-width: 380px;
+  }
+
+  #reaction.show {
+    opacity: 1;
+  }
+
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    animation: burst 0.7s ease-out forwards;
+  }
+
+  @keyframes burst {
+    0%   { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--tx), var(--ty)) scale(0); opacity: 0; }
+  }
+
+  #achievement {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: #1a1a1a;
+    border: 1px solid #e8c327;
+    border-radius: var(--border-radius-md);
+    padding: 8px 14px;
+    font-family: 'Special Elite', serif;
+    font-size: 12px;
+    color: #e8c327;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.4s, transform 0.4s;
+    max-width: 200px;
+    text-align: right;
+    pointer-events: none;
+  }
+
+  #achievement.show {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  #achievement strong {
+    display: block;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+</style>
+
+<h2 class="sr-only">A dramatic button that reacts to being clicked many times</h2>
+
+<div id="scene">
+  <div class="stars" id="stars"></div>
+
+  <div id="title">THE BUTTON</div>
+  <div id="subtitle">of extraordinary consequence</div>
+
+  <button id="bigbtn" onclick="handleClick(event)">PRESS ME</button>
+
+  <div id="counter-wrap">
+    <div id="click-count">0</div>
+    <div id="click-label">TIMES PRESSED</div>
+  </div>
+
+  <div id="reaction"></div>
+  <div id="achievement"><strong id="ach-title"></strong><span id="ach-desc"></span></div>
+</div>
+
+<script>
+  let count = 0;
+
+  const reactions = [
+    [1,  "ok that's one"],
+    [2,  "doing great, champ"],
+    [3,  "THREE times. bold."],
+    [5,  "ok... why though"],
+    [7,  "you realize nothing is happening, right"],
+    [10, "TEN. we need to talk."],
+    [15, "my therapist warned me about people like you"],
+    [20, "i'm starting to feel things"],
+    [25, "have you tried going outside"],
+    [30, "THIRTY. this is your villain origin story."],
+    [40, "okay i respect the commitment"],
+    [50, "fifty clicks. genuinely iconic. meaningless, but iconic."],
+    [69, "nice."],
+    [75, "the button did not ask for this"],
+    [100,"ONE HUNDRED. you have ascended. you have also achieved nothing."],
+    [150,"i'm telling your mom"],
+    [200,"TWO HUNDRED. the button has filed a restraining order."],
+    [300,"THREE HUNDRED. you're legally a button enthusiast now."],
+    [420,"blaze it"],
+    [500,"FIVE HUNDRED. this is a certified medical mystery."],
+    [666,"uh oh"],
+    [1000,"ONE THOUSAND. you win. you win absolutely nothing."],
+  ];
+
+  const achievements = [
+    [1,   "First Press", "a legend is born"],
+    [10,  "Two Digits", "double trouble"],
+    [50,  "Half Century", "what are you doing"],
+    [100, "Centurion", "genuinely concerning"],
+    [500, "The 500 Club", "seek help <3"],
+    [1000,"Button Ascendant", "you have transcended logic"],
+  ];
+
+  const colors = ["#e8c327","#ff5f5f","#5fd4ff","#a8ff78","#ff78f0","#ff9a3c"];
+
+  function spawnStars() {
+    const c = document.getElementById('stars');
+    for (let i = 0; i < 80; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      const sz = Math.random() * 2.5 + 0.5;
+      s.style.cssText = `
+        width:${sz}px; height:${sz}px;
+        top:${Math.random()*100}%;
+        left:${Math.random()*100}%;
+        animation-duration:${2 + Math.random()*4}s;
+        animation-delay:${Math.random()*4}s;
+      `;
+      c.appendChild(s);
+    }
+  }
+
+  function burst(x, y) {
+    const scene = document.getElementById('scene');
+    const rect = scene.getBoundingClientRect();
+    const ox = x - rect.left;
+    const oy = y - rect.top;
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const sz = 6 + Math.random() * 8;
+      const angle = (i / 12) * 360 + Math.random() * 30;
+      const dist = 50 + Math.random() * 60;
+      const tx = Math.cos(angle * Math.PI/180) * dist;
+      const ty = Math.sin(angle * Math.PI/180) * dist;
+      p.style.cssText = `
+        width:${sz}px; height:${sz}px;
+        left:${ox}px; top:${oy}px;
+        background:${colors[Math.floor(Math.random()*colors.length)]};
+        --tx:${tx}px; --ty:${ty}px;
+      `;
+      scene.appendChild(p);
+      setTimeout(() => p.remove(), 700);
+    }
+  }
+
+  function setReaction(msg) {
+    const el = document.getElementById('reaction');
+    el.classList.remove('show');
+    setTimeout(() => { el.textContent = msg; el.classList.add('show'); }, 150);
+  }
+
+  function showAchievement(title, desc) {
+    const el = document.getElementById('achievement');
+    document.getElementById('ach-title').textContent = '🏆 ' + title;
+    document.getElementById('ach-desc').textContent = desc;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  function handleClick(e) {
+    count++;
+    const el = document.getElementById('click-count');
+    el.textContent = count;
+    el.classList.remove('pop');
+    void el.offsetWidth;
+    el.classList.add('pop');
+    setTimeout(() => el.classList.remove('pop'), 100);
+
+    burst(e.clientX, e.clientY);
+
+    for (const [n, msg] of reactions) {
+      if (count === n) { setReaction(msg); break; }
+    }
+
+    for (const [n, title, desc] of achievements) {
+      if (count === n) { showAchievement(title, desc); break; }
+    }
+
+    if (count > 1000) {
+      const btn = document.getElementById('bigbtn');
+      btn.style.background = `hsl(${count * 7 % 360},80%,55%)`;
+    }
+  }
+
+  spawnStars();
+</script>
